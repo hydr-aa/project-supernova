@@ -1,0 +1,44 @@
+supernova:
+  version: "2.0.0"
+  mode: "assessment"       # assessment | guard | both
+  dry_run: false
+
+network:
+  target_network: "192.168.70.0/24"
+  authorized_networks:
+    - "192.168.70.0/24"
+    - "10.0.0.0/8"
+  supernova_ip: "192.168.70.200"
+
+ldap:
+  server: "192.168.70.10"
+  port: 389
+  use_ssl: false
+  domain: "supernova.vulnlab"
+  base_dn: "DC=supernova,DC=vulnlab"
+  username: "svc_supernova"
+  password: "env:LDAP_PASSWORD"
+  search_scope: "SUBTREE"
+  page_size: 1000
+
+guard:
+  poll_interval_seconds: 60
+  enable_event_log_monitoring: false
+  alert_webhook_discord: ""
+
+reporting:
+  output_dir: "./reports"
+  retention_days: 30
+  include_mitre_mapping: true
+  include_remediation: true
+
+logging:
+  level: "INFO"
+  file: "./logs/supernova.log"
+  max_size_mb: 10
+  backup_count: 3
+
+npu:
+  enabled: false
+  device: "/dev/hailo0"
+  model_path: "./models/anomaly_detection.hef"

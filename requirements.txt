@@ -1,0 +1,10 @@
+flask>=3.0
+flask-cors>=4.0
+flask-socketio>=5.0
+ldap3>=2.9
+impacket>=0.12
+pyyaml>=6.0
+python-dotenv>=1.0
+apscheduler>=3.10
+waitress>=2.1
+pytest>=8.0
