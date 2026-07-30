@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template, send_file
 from flask_cors import CORS
 
 from modules.utils.config import load_config
@@ -34,27 +34,39 @@ cfg = load_config("config.yaml")
 log = get_logger(cfg)
 
 # Use mock LDAP if no DC is reachable (development mode)
-MOCK = True  # Will switch to False when DC is available
+MOCK = True
 ldap_client = LDAPClient(cfg, mock=MOCK, logger=log)
 
 authorised = False
 assessment_active = False
 assessment_findings = []
+last_report_html = ""
+last_report_json = ""
+
+# Guard instance (lazy init)
+guard_poller = None
 
 
 @app.before_request
 def check_scope():
-    """Block API if network scope is not verified."""
-    if request.path == "/api/status":
-        return  # Always allow health check
+    if request.path == "/api/status" or request.path == "/":
+        return
     if not MOCK and not verify_network_scope(cfg, log):
         return jsonify({"error": "Network scope not verified"}), 403
 
 
-# ── API Routes ───────────────────────────────────────────────
+# ── Dashboard ────────────────────────────────────────────────
+
+@app.route("/")
+def dashboard():
+    return render_template("dashboard.html")
+
+
+# ── API: Status ──────────────────────────────────────────────
 
 @app.route("/api/status")
 def api_status():
+    guard_status = guard_poller.status if guard_poller else {}
     return jsonify({
         "version": cfg["supernova"]["version"],
         "mode": cfg["supernova"]["mode"],
@@ -63,12 +75,16 @@ def api_status():
         "authorised": authorised,
         "assessment_active": assessment_active,
         "npu_enabled": cfg.get("npu", {}).get("enabled", False),
+        "guard": guard_status,
     })
 
+
+# ── API: Assessment ──────────────────────────────────────────
 
 @app.route("/api/assessment/start", methods=["POST"])
 def api_assessment_start():
     global authorised, assessment_active, assessment_findings
+    global last_report_html, last_report_json
 
     if not authorised:
         if not request_authorization(cfg, log):
@@ -86,7 +102,6 @@ def api_assessment_start():
         if not ldap_client.connected:
             ldap_client.connect()
 
-        # Import and run all auditors
         from modules.auditors.account_policy import AccountPolicyAuditor
         from modules.auditors.kerberos import KerberosAuditor
         from modules.auditors.privileges import PrivilegesAuditor
@@ -97,8 +112,12 @@ def api_assessment_start():
         from modules.auditors.trusts import TrustsAuditor
         from modules.auditors.endpoints import EndpointsAuditor
         from modules.smb_client import SMBClient
+        from modules.scoring.risk_engine import RiskEngine
+        from modules.reporting import html_report, json_report
+        from modules.reporting.remediation import get_remediation
 
         smb_client = SMBClient(cfg, mock=MOCK, logger=log)
+        engine = RiskEngine()
 
         auditors = [
             AccountPolicyAuditor(ldap_client),
@@ -114,11 +133,19 @@ def api_assessment_start():
 
         for auditor in auditors:
             findings = auditor.run()
+            for f in findings:
+                if not f.remediation_ps:
+                    f.remediation_ps = get_remediation(f.id)
             assessment_findings.extend(findings)
             log.info("auditor_complete", extra_data={
                 "category": auditor.category,
                 "findings": len(findings),
             })
+
+        engine.score_all(assessment_findings)
+
+        last_report_html = html_report.generate(assessment_findings, cfg)
+        last_report_json = json_report.generate(assessment_findings, cfg)
 
     except Exception as e:
         log.error(f"assessment_failed: {e}")
@@ -126,11 +153,13 @@ def api_assessment_start():
         return jsonify({"error": str(e)}), 500
 
     assessment_active = False
-    log.info("assessment_complete", extra_data={"total_findings": len(assessment_findings)})
+    summary = engine.summary(assessment_findings)
+    log.info("assessment_complete", extra_data=summary)
 
     return jsonify({
         "status": "complete",
         "total_findings": len(assessment_findings),
+        "summary": summary,
         "findings": [
             {
                 "id": f.id,
@@ -138,6 +167,8 @@ def api_assessment_start():
                 "severity": f.severity.value,
                 "category": f.category,
                 "mitre_technique": f.mitre_technique,
+                "exploitability": f.exploitability,
+                "impact": f.impact,
             }
             for f in assessment_findings
         ],
@@ -163,20 +194,84 @@ def api_assessment_findings():
                 "remediation_ps": f.remediation_ps,
                 "evidence": f.evidence,
                 "affected_objects": f.affected_objects,
+                "exploitability": f.exploitability,
+                "impact": f.impact,
             }
             for f in results
         ],
     })
 
 
+@app.route("/api/assessment/progress")
+def api_assessment_progress():
+    return jsonify({
+        "active": assessment_active,
+        "total_categories": 9,
+        "findings_so_far": len(assessment_findings),
+    })
+
+
+# ── API: Reports ─────────────────────────────────────────────
+
+@app.route("/api/report/latest")
+def api_report_latest():
+    from modules.scoring.risk_engine import RiskEngine
+    engine = RiskEngine()
+    summary = engine.summary(assessment_findings) if assessment_findings else {}
+    return jsonify({
+        "available": len(assessment_findings) > 0,
+        "total_findings": len(assessment_findings),
+        "summary": summary,
+        "html_path": last_report_html,
+        "json_path": last_report_json,
+    })
+
+
+@app.route("/api/report/download")
+def api_report_download():
+    fmt = request.args.get("format", "html")
+    path = last_report_html if fmt == "html" else last_report_json
+    if not path or not Path(path).exists():
+        return jsonify({"error": "No report available. Run an assessment first."}), 404
+    return send_file(
+        Path(path).absolute(),
+        as_attachment=True,
+        download_name=Path(path).name,
+    )
+
+
+# ── API: Guard ───────────────────────────────────────────────
+
 @app.route("/api/guard/status")
 def api_guard_status():
-    return jsonify({
-        "guard_active": False,
+    status = guard_poller.status if guard_poller else {
+        "running": False,
         "threat_level": "low",
         "events_analysed": 0,
         "alerts_triggered": 0,
-    })
+        "uptime_seconds": 0,
+        "recent_alerts": [],
+    }
+    return jsonify(status)
+
+
+@app.route("/api/guard/start", methods=["POST"])
+def api_guard_start():
+    global guard_poller
+    if guard_poller is None:
+        from modules.guard.poller import GuardPoller
+        guard_poller = GuardPoller(ldap_client, cfg, logger=log)
+    if not guard_poller.status["running"]:
+        guard_poller.start()
+    return jsonify(guard_poller.status)
+
+
+@app.route("/api/guard/stop", methods=["POST"])
+def api_guard_stop():
+    global guard_poller
+    if guard_poller and guard_poller.status["running"]:
+        guard_poller.stop()
+    return jsonify(guard_poller.status if guard_poller else {"running": False})
 
 
 # ── Main ─────────────────────────────────────────────────────
