@@ -113,6 +113,8 @@ class LDAPClient:
     # ── High-level queries ────────────────────────────────────
 
     def get_domain_controllers(self):
+        if self._mock:
+            return [{"cn": ["DC01"], "dNSHostName": ["DC01.supernova.vulnlab"], "operatingSystem": ["Windows Server 2022"]}]
         return self.search(
             filter_str="(&(objectCategory=computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))",
             attributes=["cn", "dNSHostName", "operatingSystem"],

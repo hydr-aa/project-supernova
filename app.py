@@ -90,11 +90,26 @@ def api_assessment_start():
         from modules.auditors.account_policy import AccountPolicyAuditor
         from modules.auditors.kerberos import KerberosAuditor
         from modules.auditors.privileges import PrivilegesAuditor
+        from modules.auditors.acl import ACLAuditor
+        from modules.auditors.gpo import GPOAuditor
+        from modules.auditors.protocols import ProtocolsAuditor
+        from modules.auditors.adcs import ADCSAuditor
+        from modules.auditors.trusts import TrustsAuditor
+        from modules.auditors.endpoints import EndpointsAuditor
+        from modules.smb_client import SMBClient
+
+        smb_client = SMBClient(cfg, mock=MOCK, logger=log)
 
         auditors = [
             AccountPolicyAuditor(ldap_client),
             KerberosAuditor(ldap_client),
             PrivilegesAuditor(ldap_client),
+            ACLAuditor(ldap_client),
+            GPOAuditor(ldap_client, smb_client=smb_client),
+            ProtocolsAuditor(ldap_client),
+            ADCSAuditor(ldap_client),
+            TrustsAuditor(ldap_client),
+            EndpointsAuditor(ldap_client),
         ]
 
         for auditor in auditors:
