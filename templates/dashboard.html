@@ -3,41 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Supernova — AD Security</title>
+<title>Supernova — AD Security Auditing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
 <body>
 
-<div class="app-header">
-  <div>
-    <div class="logo">PROJECT <span>SUPERNOVA</span></div>
-    <div class="logo-sub">AI-Driven AD Security Auditing — GMI CBS/08/24B — v<span id="meta-version">2.0</span></div>
+<header class="app-header">
+  <div class="logo-group">
+    <div class="logo">Project <span>Supernova</span></div>
+    <div class="logo-sub">AD Security Auditing & Real-Time Threat Detection</div>
   </div>
-  <div class="status-row">
-    <span class="status-badge" id="badge-npu">NPU OFF</span>
-    <span class="status-badge" id="badge-ldap">MOCK</span>
+  <div class="header-meta">
+    <span class="badge" id="badge-npu">NPU Off</span>
+    <span class="badge" id="badge-ldap">Mock</span>
   </div>
-</div>
+</header>
 
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('assessment',this);fetchStatus()">Assessment</button>
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('assessment',this)">Assessment</button>
   <button class="tab-btn" onclick="showTab('report',this);loadReport()">Report</button>
-  <button class="tab-btn" onclick="showTab('guard',this);fetchStatus()">Guard</button>
-</div>
+  <button class="tab-btn" onclick="showTab('guard',this)">Guard</button>
+</nav>
 
-<!-- PAGE 1: ASSESSMENT -->
+<!-- ── ASSESSMENT ── -->
 <div class="page active" id="page-assessment">
   <div class="controls">
-    <button class="btn primary" id="run-btn" onclick="startAssessment()">&#9654; Run Assessment</button>
-    <button class="btn" id="reset-btn" onclick="resetAssessment()">&#8634; Reset</button>
-    <span class="status-badge" id="badge-status">READY</span>
+    <button class="btn primary" id="run-btn" onclick="startAssessment()">Run Assessment</button>
+    <button class="btn" id="reset-btn" onclick="resetAssessment()">Reset</button>
+    <span class="badge badge-neutral" id="badge-status">Ready</span>
   </div>
 
   <div class="grid g4 mb-1">
-    <div class="metric-card"><div class="metric-label">Findings</div><div class="metric-val red" id="m-findings">0</div></div>
+    <div class="metric-card"><div class="metric-label">Findings</div><div class="metric-val crit" id="m-findings">0</div></div>
     <div class="metric-card"><div class="metric-label">Overall Risk</div><div class="metric-val" id="m-risk">—</div></div>
-    <div class="metric-card"><div class="metric-label">Critical</div><div class="metric-val red" id="b-crit">0</div></div>
-    <div class="metric-card"><div class="metric-label">High</div><div class="metric-val amber" id="b-high">0</div></div>
+    <div class="metric-card"><div class="metric-label">Critical</div><div class="metric-val crit" id="b-crit">0</div></div>
+    <div class="metric-card"><div class="metric-label">High</div><div class="metric-val high" id="b-high">0</div></div>
   </div>
 
   <div class="grid g2 mb-1">
@@ -51,42 +54,38 @@
     </div>
   </div>
 
-  <div class="grid g2">
-    <div class="card">
-      <div class="sec-title">Findings Discovered</div>
-      <div class="finding-list" id="finding-list"><div class="empty">No findings yet.</div></div>
-    </div>
-    <div class="card">
-      <div class="sec-title">Risk Breakdown</div>
-      <div class="metric-label" style="margin-top:1rem;color:#666;">Medium <span id="b-med" style="color:#85B7EB;">0</span></div>
-      <div style="margin-top:2rem;color:#444;font-size:11px;">Run assessment to populate risk data.</div>
-    </div>
+  <div class="card">
+    <div class="sec-title">Findings Discovered</div>
+    <div class="finding-list" id="finding-list"><div class="empty">No findings yet.</div></div>
   </div>
 </div>
 
-<!-- PAGE 2: REPORT -->
+<!-- ── REPORT ── -->
 <div class="page" id="page-report">
   <div id="report-content"><div class="empty">Run an assessment to view the report.</div></div>
 </div>
 
-<!-- PAGE 3: GUARD -->
+<!-- ── GUARD ── -->
 <div class="page" id="page-guard">
   <div class="guard-status">
     <div class="guard-dot on"></div>
-    <div style="flex:1"><div style="font-weight:600">Real-Time Guard</div><div class="logo-sub">Monitoring critical AD state changes</div></div>
-    <div class="threat-badge threat-low" id="threat-level">THREAT: LOW</div>
+    <div>
+      <div class="guard-label">Real-Time Guard</div>
+      <div class="guard-sub">Monitoring critical AD state changes</div>
+    </div>
+    <div class="threat-badge threat-low" id="threat-level">Threat: Low</div>
   </div>
 
   <div class="grid g4 mb-1">
-    <div class="metric-card"><div class="metric-label">Events Analyzed</div><div class="metric-val blue" id="g-events">0</div></div>
-    <div class="metric-card"><div class="metric-label">Alerts Triggered</div><div class="metric-val red" id="g-alerts">0</div></div>
+    <div class="metric-card"><div class="metric-label">Events Analyzed</div><div class="metric-val" id="g-events">0</div></div>
+    <div class="metric-card"><div class="metric-label">Alerts</div><div class="metric-val crit" id="g-alerts">0</div></div>
     <div class="metric-card"><div class="metric-label">Uptime</div><div class="metric-val" id="g-uptime">0h 0m</div></div>
     <div class="metric-card"><div class="metric-label">Status</div><div class="metric-val green">Active</div></div>
   </div>
 
   <div class="card">
     <div class="sec-title">Alert Feed</div>
-    <div class="alert-feed" id="alert-feed"><div class="empty">Monitoring... no alerts detected.</div></div>
+    <div class="alert-feed" id="alert-feed"><div class="empty">Monitoring — no alerts detected.</div></div>
   </div>
 </div>
 
