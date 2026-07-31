@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supernova — AD Security Auditing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/dashboard-blue.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo-group">
+    <div class="logo">PROJECT <span>SUPERNOVA</span></div>
+    <div class="logo-sub">AD Security Auditing &amp; Real-Time Threat Detection</div>
+  </div>
+  <div class="header-meta">
+    <span class="badge badge-neutral" id="badge-npu">NPU_OFF</span>
+    <span class="badge badge-neutral" id="badge-ldap">MOCK</span>
+  </div>
+</header>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('assessment',this)">Assessment</button>
+  <button class="tab-btn" onclick="showTab('report',this);loadReport()">Report</button>
+  <button class="tab-btn" onclick="showTab('guard',this)">Guard</button>
+</nav>
+
+<!-- ── ASSESSMENT ── -->
+<div class="page active" id="page-assessment">
+  <div class="controls">
+    <button class="btn primary" id="run-btn" onclick="startAssessment()">Run_Assessment()</button>
+    <button class="btn" id="reset-btn" onclick="resetAssessment()">Reset</button>
+    <span class="badge badge-neutral" id="badge-status">READY</span>
+  </div>
+
+  <div class="grid g4 mb-1">
+    <div class="metric-card"><div class="metric-label">findings</div><div class="metric-val crit" id="m-findings">0</div></div>
+    <div class="metric-card"><div class="metric-label">overall_risk</div><div class="metric-val" id="m-risk">—</div></div>
+    <div class="metric-card"><div class="metric-label">critical</div><div class="metric-val crit" id="b-crit">0</div></div>
+    <div class="metric-card"><div class="metric-label">high</div><div class="metric-val high" id="b-high">0</div></div>
+  </div>
+
+  <div class="grid g2 mb-1">
+    <div class="card">
+      <div class="sec-title">audit_progress</div>
+      <div class="audit-progress" id="audit-progress"></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">stdout</div>
+      <div class="terminal" id="terminal"><span class="t-gray">$ Press "Run_Assessment()" to begin.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">findings_discovered</div>
+    <div class="finding-list" id="finding-list"><div class="empty">No findings yet.</div></div>
+  </div>
+</div>
+
+<!-- ── REPORT ── -->
+<div class="page" id="page-report">
+  <div id="report-content"><div class="empty">Run an assessment to view the report.</div></div>
+</div>
+
+<!-- ── GUARD ── -->
+<div class="page" id="page-guard">
+  <div class="guard-status">
+    <div class="guard-dot on"></div>
+    <div>
+      <div class="guard-label">Real-Time Guard</div>
+      <div class="guard-sub">Monitoring critical AD state changes</div>
+    </div>
+    <div class="threat-badge threat-low" id="threat-level">THREAT_LOW</div>
+  </div>
+
+  <div class="grid g4 mb-1">
+    <div class="metric-card"><div class="metric-label">events_analysed</div><div class="metric-val" id="g-events">0</div></div>
+    <div class="metric-card"><div class="metric-label">alerts</div><div class="metric-val crit" id="g-alerts">0</div></div>
+    <div class="metric-card"><div class="metric-label">uptime</div><div class="metric-val" id="g-uptime">0h_0m</div></div>
+    <div class="metric-card"><div class="metric-label">status</div><div class="metric-val green">ACTIVE</div></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">alert_feed</div>
+    <div class="alert-feed" id="alert-feed"><div class="empty">Monitoring — no alerts detected.</div></div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
