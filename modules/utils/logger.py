@@ -26,6 +26,12 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(entry, default=str)
 
 
+def _log_with_extra(logger, level, msg, **kwargs):
+    """Wrapper that puts extra keyword args into record.extra_data."""
+    extra_data = kwargs.pop("extra_data", {})
+    logger.log(level, msg, extra={"extra_data": extra_data}, **kwargs)
+
+
 def get_logger(config):
     log_cfg = config.get("logging", {})
     level = getattr(logging, log_cfg.get("level", "INFO").upper(), logging.INFO)
@@ -52,5 +58,26 @@ def get_logger(config):
     console = logging.StreamHandler()
     console.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
     logger.addHandler(console)
+
+    # Patch logger to support extra_data kwarg
+    original_info = logger.info
+    original_warning = logger.warning
+    original_error = logger.error
+
+    def patched_info(msg, *args, **kwargs):
+        extra_data = kwargs.pop("extra_data", {})
+        original_info(msg, *args, extra={"extra_data": extra_data}, **kwargs)
+
+    def patched_warning(msg, *args, **kwargs):
+        extra_data = kwargs.pop("extra_data", {})
+        original_warning(msg, *args, extra={"extra_data": extra_data}, **kwargs)
+
+    def patched_error(msg, *args, **kwargs):
+        extra_data = kwargs.pop("extra_data", {})
+        original_error(msg, *args, extra={"extra_data": extra_data}, **kwargs)
+
+    logger.info = patched_info
+    logger.warning = patched_warning
+    logger.error = patched_error
 
     return logger
