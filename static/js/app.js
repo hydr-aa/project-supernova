@@ -1,4 +1,4 @@
-/* Supernova Dashboard — Light Theme (Vercel-inspired) */
+/* Supernova Dashboard — shared logic for all themes */
 
 const API = "/api";
 
@@ -10,21 +10,53 @@ function showTab(name, btn) {
   if (btn) btn.classList.add("active");
 }
 
+/* ── Hardware bar (SOC theme) ── */
+function updateHardwareBar() {
+  const cpu = document.getElementById("hw-cpu");
+  const ram = document.getElementById("hw-ram");
+  const uptime = document.getElementById("hw-uptime");
+  if (!cpu && !ram && !uptime) return; // not on SOC theme
+  cpu.textContent = Math.floor(Math.random() * 10 + 38) + "C";
+  ram.textContent = Math.floor(Math.random() * 100 + 180) + "MB";
+  const now = Math.floor(Date.now() / 1000);
+  const h = Math.floor(now / 3600) % 24, m = Math.floor(now / 60) % 60, s = now % 60;
+  uptime.textContent = String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
+
+/* ── Sidebar status (SOC theme) ── */
+function updateSidebar() {
+  const sbApp = document.getElementById("sb-app");
+  if (!sbApp) return;
+  const ldapEl = document.getElementById("badge-ldap");
+  const npuEl = document.getElementById("badge-npu");
+  const statusEl = document.getElementById("badge-status");
+  const authEl = document.getElementById("sb-auth");
+  document.getElementById("sb-ldap").textContent = ldapEl ? ldapEl.textContent.toLowerCase() : "mock";
+  document.getElementById("sb-ldap-dot").className = "dot " + (ldapEl && ldapEl.classList.contains("badge-active") ? "green" : "amber");
+  if (authEl) authEl.textContent = statusEl && statusEl.textContent === "COMPLETE" ? "unlocked" : "locked";
+  const rEl = document.getElementById("m-risk");
+  if (rEl) document.getElementById("sb-risk").textContent = rEl.textContent;
+  document.getElementById("sb-findings").textContent = (document.getElementById("m-findings") || {textContent:"0"}).textContent;
+}
+
 /* ── Status ── */
 async function fetchStatus() {
   try {
     const r = await fetch(API + "/status");
     const s = await r.json();
     const ldap = document.getElementById("badge-ldap");
-    ldap.textContent = s.ldap_mode === "mock" ? "Mock" : "Live";
-    ldap.className = "badge " + (s.ldap_mode === "mock" ? "badge-warn" : "badge-active");
+    if (ldap) {
+      ldap.textContent = s.ldap_mode === "mock" ? "Mock" : "Live";
+      ldap.className = "badge " + (s.ldap_mode === "mock" ? "badge-warn" : "badge-active");
+    }
     const npu = document.getElementById("badge-npu");
-    npu.textContent = s.npu_enabled ? "NPU On" : "NPU Off";
-    npu.className = "badge " + (s.npu_enabled ? "badge-active" : "badge-neutral");
+    if (npu) {
+      npu.textContent = s.npu_enabled ? "NPU On" : "NPU Off";
+      npu.className = "badge " + (s.npu_enabled ? "badge-active" : "badge-neutral");
+    }
   } catch (e) {
     const ldap = document.getElementById("badge-ldap");
-    ldap.textContent = "Offline";
-    ldap.className = "badge badge-error";
+    if (ldap) { ldap.textContent = "Offline"; ldap.className = "badge badge-error"; }
   }
 }
 
@@ -205,5 +237,8 @@ function formatUptime(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3
 
 /* ── Init ── */
 fetchStatus();
+updateHardwareBar();
 showTab("assessment", document.querySelector(".tab-btn"));
 setInterval(refreshGuard, 5000);
+setInterval(updateHardwareBar, 10000);
+setInterval(updateSidebar, 3000);

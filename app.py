@@ -67,6 +67,11 @@ def dashboard_blue():
     return render_template("dashboard-blue.html")
 
 
+@app.route("/soc")
+def dashboard_soc():
+    return render_template("dashboard-soc.html")
+
+
 # ── API: Status ──────────────────────────────────────────────
 
 @app.route("/api/status")
