@@ -229,7 +229,7 @@ body{
 .prog-status{font-size:10px;text-transform:uppercase;letter-spacing:0.5px}
 
 /* ── Findings ── */
-.finding-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto}
+.finding-list{display:flex;flex-direction:column;gap:4px}
 .finding-row{
   display:flex;align-items:center;gap:10px;padding:6px 12px;
   font-size:11px;border:1px solid transparent;color:#111827;

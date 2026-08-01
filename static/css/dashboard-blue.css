@@ -195,7 +195,7 @@ body{
 .prog-status{font-size:10px;font-family:'Fira Code',monospace}
 
 /* ── Findings List ── */
-.finding-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.finding-list{display:flex;flex-direction:column;gap:6px}
 .finding-row{
   display:flex;align-items:center;gap:var(--spacing-sm);padding:8px 12px;
   border-radius:var(--radius-sm);font-size:13px;
