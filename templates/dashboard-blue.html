@@ -17,6 +17,12 @@
     <div class="logo-sub">AD Security Auditing &amp; Real-Time Threat Detection</div>
   </div>
   <div class="header-meta">
+    <select onchange="switchTheme(this.value)" style="font-family:'Fira Code',monospace;font-size:9px;padding:2px 8px;background:var(--color-surface);color:var(--color-primary);border:1px solid var(--color-border);text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:var(--radius-sm);height:22px">
+      <option value="blue">Blue</option>
+      <option value="light">Light</option>
+      <option value="soc">SOC Dark</option>
+      <option value="soc-light">SOC Light</option>
+    </select>
     <span class="badge badge-neutral" id="badge-npu">NPU_OFF</span>
     <span class="badge badge-neutral" id="badge-ldap">MOCK</span>
   </div>
@@ -73,6 +79,7 @@
       <div class="guard-label">Real-Time Guard</div>
       <div class="guard-sub">Monitoring critical AD state changes</div>
     </div>
+    <button class="btn" onclick="simulateAlert()" style="margin-right:8px">SIMULATE</button>
     <div class="threat-badge threat-low" id="threat-level">THREAT_LOW</div>
   </div>
 

@@ -178,30 +178,42 @@ class LDAPClient:
     # ── Mock data (for offline development) ───────────────────
 
     def _mock_search(self, filter_str):
-        """Return canned data matching common filter patterns."""
+        """Return canned data matching common filter patterns.
+        Seeded with deliberate misconfigurations matching setup-dc.ps1."""
         data = []
 
         if "user" in filter_str.lower():
             data = [
-                {"sAMAccountName": ["Administrator"], "userAccountControl": [512], "pwdLastSet": [133600000000000000]},
-                {"sAMAccountName": ["Guest"], "userAccountControl": [514]},
-                {"sAMAccountName": ["svc_supernova"], "userAccountControl": [512], "servicePrincipalName": []},
-                {"sAMAccountName": ["svc_backup"], "userAccountControl": [512], "servicePrincipalName": ["MSSQLSvc/WS01:1433"]},
-                {"sAMAccountName": ["anaqie.mikael"], "userAccountControl": [512]},
-                {"sAMAccountName": ["sitee.hajarr"], "userAccountControl": [512]},
+                {"sAMAccountName": ["Administrator"], "userAccountControl": [512], "pwdLastSet": [133600000000000000], "description": ["Built-in account"], "memberOf": ["CN=Domain Admins,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["Guest"], "userAccountControl": [514], "description": ["Built-in guest account"]},
+                {"sAMAccountName": ["krbtgt"], "userAccountControl": [514], "pwdLastSet": [130000000000000000], "description": ["KDC Service Account"]},
+                {"sAMAccountName": ["anaqie.mikael"], "userAccountControl": [512], "displayName": ["Anaqie Mikael"], "description": ["Hardware & Infrastructure"], "memberOf": ["CN=Domain Users,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["sitee.hajarr"], "userAccountControl": [512], "displayName": ["Sitee Hajarr"], "description": ["Security Research"], "memberOf": ["CN=Domain Users,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["luqman.zafree"], "userAccountControl": [512], "displayName": ["Luqman Zafree"], "description": ["PM / Lead Dev"], "memberOf": ["CN=Domain Users,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["sqlservice"], "userAccountControl": [66048], "displayName": ["SQL Service"], "description": ["HAS DCSYNC RIGHTS + IN DOMAIN ADMINS"], "memberOf": ["CN=Domain Users,CN=Users,DC=supernova,DC=vulnlab", "CN=Domain Admins,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["svc_backup"], "userAccountControl": [512], "displayName": ["Backup Service"], "description": ["KERBEROASTABLE (SPN)"], "servicePrincipalName": ["MSSQLSvc/WS01:1433"], "memberOf": ["CN=Domain Users,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["asrep_user"], "userAccountControl": [4194816], "displayName": ["AS-REP Test"], "description": ["PRE-AUTHENTICATION DISABLED"], "memberOf": ["CN=Domain Users,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["svc_supernova"], "userAccountControl": [512], "displayName": ["Supernova Service"], "description": ["Read-only service account"], "memberOf": ["CN=Domain Users,CN=Users,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["helpdesk"], "userAccountControl": [512], "displayName": ["IT Helpdesk"], "description": ["IN ACCOUNT OPERATORS"], "memberOf": ["CN=Account Operators,CN=Builtin,DC=supernova,DC=vulnlab"]},
+                {"sAMAccountName": ["backup_admin"], "userAccountControl": [512], "displayName": ["Backup Admin"], "description": ["IN BACKUP OPERATORS"], "memberOf": ["CN=Backup Operators,CN=Builtin,DC=supernova,DC=vulnlab"]},
             ]
 
         elif "group" in filter_str.lower():
             data = [
-                {"cn": ["Domain Admins"], "sAMAccountName": ["Domain Admins"], "member": ["CN=Administrator,CN=Users,DC=supernova,DC=vulnlab"]},
-                {"cn": ["Enterprise Admins"], "sAMAccountName": ["Enterprise Admins"], "member": ["CN=Administrator,CN=Users,DC=supernova,DC=vulnlab"]},
-                {"cn": ["Domain Users"], "sAMAccountName": ["Domain Users"], "member": []},
+                {"cn": ["Domain Admins"], "sAMAccountName": ["Domain Admins"], "member": ["CN=Administrator,CN=Users,DC=supernova,DC=vulnlab", "CN=sqlservice,OU=ServiceAccounts,OU=GMI,DC=supernova,DC=vulnlab"], "groupType": [-2147483646], "description": ["sqlservice IS AN UNAUTHORISED MEMBER"]},
+                {"cn": ["Enterprise Admins"], "sAMAccountName": ["Enterprise Admins"], "member": ["CN=Administrator,CN=Users,DC=supernova,DC=vulnlab"], "groupType": [-2147483646]},
+                {"cn": ["Schema Admins"], "sAMAccountName": ["Schema Admins"], "member": ["CN=Administrator,CN=Users,DC=supernova,DC=vulnlab"], "groupType": [-2147483646]},
+                {"cn": ["Account Operators"], "sAMAccountName": ["Account Operators"], "member": ["CN=helpdesk,OU=Users,OU=GMI,DC=supernova,DC=vulnlab"], "groupType": [-2147483646]},
+                {"cn": ["Server Operators"], "sAMAccountName": ["Server Operators"], "member": [], "groupType": [-2147483646]},
+                {"cn": ["Backup Operators"], "sAMAccountName": ["Backup Operators"], "member": ["CN=backup_admin,OU=Users,OU=GMI,DC=supernova,DC=vulnlab"], "groupType": [-2147483646], "description": ["backup_admin HAS DANGEROUS PRIVILEGE"]},
+                {"cn": ["Protected Users"], "sAMAccountName": ["Protected Users"], "member": [], "groupType": [-2147483646], "description": ["EMPTY — NO PRIVILEGED ACCOUNTS PROTECTED"]},
+                {"cn": ["Domain Users"], "sAMAccountName": ["Domain Users"], "member": [], "groupType": [-2147483646]},
             ]
 
         elif "computer" in filter_str.lower():
             data = [
                 {"cn": ["DC01"], "dNSHostName": ["DC01.supernova.vulnlab"], "operatingSystem": ["Windows Server 2022"], "userAccountControl": [532480]},
-                {"cn": ["WS01"], "dNSHostName": ["WS01.supernova.vulnlab"], "operatingSystem": ["Windows 10 Pro"], "userAccountControl": [4096]},
+                {"cn": ["WS01"], "dNSHostName": ["WS01.supernova.vulnlab"], "operatingSystem": ["Windows 10 Pro"], "userAccountControl": [4096], "description": ["UNCONSTRAINED DELEGATION"]},
                 {"cn": ["WS02"], "dNSHostName": ["WS02.supernova.vulnlab"], "operatingSystem": ["Windows 10 Pro"], "userAccountControl": [4096]},
             ]
 
@@ -211,6 +223,17 @@ class LDAPClient:
                 "minPwdAge": [0], "lockoutThreshold": [0], "lockoutDuration": [-18000000000],
                 "lockoutObservationWindow": [-18000000000], "pwdProperties": [0],
             }]
+
+        elif "pkienrollment" in filter_str.lower() or "pkicertificate" in filter_str.lower():
+            data = []
+
+        elif "trusteddomain" in filter_str.lower():
+            data = []
+
+        elif "grouppolicy" in filter_str.lower():
+            data = [
+                {"displayName": ["Default Domain Policy"], "flags": [1], "description": ["FLAGGED AS DISABLED"]},
+            ]
 
         return data
 

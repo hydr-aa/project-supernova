@@ -23,6 +23,12 @@
 <header class="app-header">
   <div class="logo">SUPERNOVA <span>v2.0</span></div>
   <div class="header-meta">
+    <select onchange="switchTheme(this.value)" style="font-family:var(--font-mono);font-size:9px;padding:2px 8px;background:var(--bg-panel);color:var(--text-primary);border:1px solid var(--fg-border);text-transform:uppercase;letter-spacing:1px;cursor:pointer">
+      <option value="soc">SOC Dark</option>
+      <option value="soc-light">SOC Light</option>
+      <option value="blue">Blue</option>
+      <option value="light">Light</option>
+    </select>
     <span class="badge" id="badge-ldap">MOCK</span>
     <span class="badge badge-neutral" id="badge-npu">NPU_OFF</span>
   </div>
@@ -103,6 +109,7 @@
   <div class="guard-status">
     <div class="guard-dot on"></div>
     <div><div class="guard-label">REAL-TIME GUARD</div><div class="guard-sub">Monitoring critical AD state changes</div></div>
+    <button class="btn" onclick="simulateAlert()" style="margin-right:8px">SIMULATE</button>
     <div class="threat-badge threat-low" id="threat-level">THREAT_LOW</div>
   </div>
   <div class="grid g3 mb-1">

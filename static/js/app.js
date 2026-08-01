@@ -243,6 +243,40 @@ setInterval(refreshGuard, 5000);
 setInterval(updateHardwareBar, 10000);
 setInterval(updateSidebar, 3000);
 
+/* ── Guard Simulation ── */
+function simulateAlert() {
+  const scenarios = [
+    { sev: "critical", title: "New member added to Domain Admins: sqlservice", change: "group_membership_added" },
+    { sev: "critical", title: "DCSync right granted to: helpdesk", change: "replication_rights_added" },
+    { sev: "critical", title: "Unconstrained delegation enabled on: WS02", change: "delegation_enabled" },
+    { sev: "high", title: "New SPN registered: HTTP/WS01 for luqman.zafree", change: "spn_registered" },
+    { sev: "high", title: "AdminSDHolder ACL modified: WriteProperty for Domain Users", change: "adminsdholder_modified" },
+    { sev: "critical", title: "GPO link changed on Domain Controllers OU", change: "gpo_link_modified" },
+    { sev: "high", title: "Password policy weakened: min length changed to 6", change: "password_policy_modified" },
+  ];
+  const s = scenarios[Math.floor(Math.random() * scenarios.length)];
+  const feed = document.getElementById("alert-feed");
+  if (!feed) return;
+  const empty = feed.querySelector(".empty");
+  if (empty) empty.remove();
+  const item = document.createElement("div");
+  item.className = "alert-item " + (s.sev === "critical" ? "critical" : "high");
+  const now = new Date();
+  item.innerHTML = '<span class="sev-badge ' + s.sev + '">' + s.sev.toUpperCase() + '</span><div style="flex:1"><div class="alert-title">' + s.title + '</div><div class="alert-detail">' + s.change + '</div></div><span class="alert-time">' + now.toLocaleTimeString() + '</span>';
+  feed.insertBefore(item, feed.firstChild);
+  const aEl = document.getElementById("g-alerts");
+  if (aEl) aEl.textContent = parseInt(aEl.textContent || 0) + 1;
+  const th = document.getElementById("threat-level");
+  if (th && s.sev === "critical") { let t = th.className.replace(/threat-\w+/g,''); th.textContent = "THREAT_HIGH"; th.className = (t + " threat-high").trim(); }
+}
+
+/* ── Theme Switcher ── */
+function switchTheme(theme) {
+  const themes = { light: "/", blue: "/blue", soc: "/soc", "soc-light": "/soc-light" };
+  const url = themes[theme];
+  if (url) window.location.href = url;
+}
+
 /* ── Charts (Analytics tab) ── */
 let severityChart = null, categoryChart = null;
 

@@ -14,9 +14,15 @@
 <header class="app-header">
   <div class="logo-group">
     <div class="logo">Project <span>Supernova</span></div>
-    <div class="logo-sub">AD Security Auditing & Real-Time Threat Detection</div>
+    <div class="logo-sub">AD Security Auditing &amp; Real-Time Threat Detection</div>
   </div>
   <div class="header-meta">
+    <select onchange="switchTheme(this.value)" style="font-family:Inter,sans-serif;font-size:11px;padding:2px 8px;border:1px solid var(--hairline);border-radius:var(--rounded-pill);background:var(--canvas);color:var(--ink);cursor:pointer;height:24px">
+      <option value="light">Light</option>
+      <option value="blue">Blue</option>
+      <option value="soc">SOC Dark</option>
+      <option value="soc-light">SOC Light</option>
+    </select>
     <span class="badge" id="badge-npu">NPU Off</span>
     <span class="badge" id="badge-ldap">Mock</span>
   </div>
@@ -73,6 +79,7 @@
       <div class="guard-label">Real-Time Guard</div>
       <div class="guard-sub">Monitoring critical AD state changes</div>
     </div>
+    <button class="btn" onclick="simulateAlert()" style="margin-right:8px">Simulate Alert</button>
     <div class="threat-badge threat-low" id="threat-level">Threat: Low</div>
   </div>
 
