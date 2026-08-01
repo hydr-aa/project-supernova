@@ -17,9 +17,9 @@
   --alert-red-dim: #FEE2E2;
   --caution-amber: #D97706;
   --caution-amber-dim: #FEF3C7;
-  --text-primary: #18181B;
-  --text-secondary: #52525B;
-  --text-dim: #A1A1AA;
+  --text-primary: #000000;
+  --text-secondary: #1F2937;
+  --text-dim: #6B7280;
   --radius: 0px;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
   --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -52,7 +52,7 @@ body{
 }
 .hw-bar .hw-name{color: var(--signal-blue);font-weight:600;text-transform:uppercase}
 .hw-bar .hw-sep{color: var(--fg-divider)}
-.hw-bar .hw-val{color: var(--text-secondary)}
+.hw-bar .hw-val{color: #1F2937;font-weight:500}
 .hw-bar .hw-val.green{color: var(--nominal-green)}
 .hw-bar .hw-val.warn{color: var(--caution-amber)}
 
@@ -105,7 +105,7 @@ body{
 }
 .sidebar-item{
   display:flex;align-items:center;gap:8px;
-  padding:4px 0;font-size:11px;color:var(--text-secondary);
+  padding:4px 0;font-size:11px;color:#111827;
   cursor:default;
 }
 .sidebar-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -125,12 +125,12 @@ body{
 }
 .tab-btn{
   font-family:var(--font-mono);
-  font-size:11px;font-weight:500;padding:8px 16px;cursor:pointer;
+  font-size:11px;font-weight:600;padding:8px 16px;cursor:pointer;
   border:none;background:none;color:var(--text-dim);
   text-transform:uppercase;letter-spacing:1px;transition:all .15s;
   border-bottom:2px solid transparent;
 }
-.tab-btn:hover{color:var(--text-secondary)}
+.tab-btn:hover{color:#111827}
 .tab-btn.active{color:var(--signal-blue);border-bottom-color:var(--signal-blue);background:var(--signal-blue-dim)}
 
 /* ── Pages ── */
@@ -199,11 +199,11 @@ body{
 
 /* ── Terminal (light paper look) ── */
 .terminal{
-  background: #FAFAFA;
+  background: #F9FAFB;
   border: 1px solid var(--fg-divider);
   padding:14px;height:220px;overflow-y:auto;
   font-size:11px;line-height:1.8;
-  color: var(--text-primary);
+  color: #111827;
 }
 .terminal::-webkit-scrollbar{width:3px}
 .terminal::-webkit-scrollbar-thumb{background:var(--fg-border)}
@@ -232,7 +232,7 @@ body{
 .finding-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto}
 .finding-row{
   display:flex;align-items:center;gap:10px;padding:6px 12px;
-  font-size:11px;border:1px solid transparent;color:var(--text-secondary);
+  font-size:11px;border:1px solid transparent;color:#111827;
 }
 .finding-row:hover{border-color:var(--fg-border);background:var(--bg-hover)}
 .finding-name{flex:1}
@@ -259,7 +259,7 @@ body{
 .guard-dot.off{background:var(--text-dim);animation:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 .guard-label{font-weight:600;color:var(--text-primary);font-size:13px;flex:1;text-transform:uppercase;letter-spacing:1px}
-.guard-sub{font-family:var(--font-body);font-size:11px;color:var(--text-dim)}
+.guard-sub{font-family:var(--font-body);font-size:11px;color:#4B5563}
 .threat-badge{
   padding:3px 14px;font-size:9px;font-weight:600;
   text-transform:uppercase;letter-spacing:1.5px;
@@ -280,8 +280,8 @@ body{
 .alert-item.high{border-color:var(--caution-amber);background:var(--caution-amber-dim)}
 @keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .alert-title{font-weight:600;color:var(--text-primary);margin-bottom:2px}
-.alert-detail{font-family:var(--font-body);font-size:11px;color:var(--text-dim)}
-.alert-time{font-size:9px;color:var(--text-dim);white-space:nowrap}
+.alert-detail{font-family:var(--font-body);font-size:11px;color:#4B5563}
+.alert-time{font-size:9px;color:#6B7280;white-space:nowrap}
 
 /* ── Report ── */
 .report-header{
