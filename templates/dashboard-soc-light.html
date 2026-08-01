@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUPERNOVA — Hardware Appliance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/dashboard-soc-light.css">
+</head>
+<body>
+
+<div class="hw-bar">
+  <span class="hw-name">SN-APP-01</span><span class="hw-sep">|</span>
+  CPU:<span class="hw-val" id="hw-cpu">--</span><span class="hw-sep">|</span>
+  RAM:<span class="hw-val" id="hw-ram">--</span><span class="hw-sep">|</span>
+  ETH0:<span class="hw-val green" id="hw-eth">UP</span><span class="hw-sep">|</span>
+  NPU:<span class="hw-val warn" id="hw-npu">OFF</span><span class="hw-sep">|</span>
+  UPTIME:<span class="hw-val" id="hw-uptime">--:--:--</span>
+</div>
+
+<header class="app-header">
+  <div class="logo">SUPERNOVA <span>v2.0</span></div>
+  <div class="header-meta">
+    <span class="badge" id="badge-ldap">MOCK</span>
+    <span class="badge badge-neutral" id="badge-npu">NPU_OFF</span>
+  </div>
+</header>
+
+<div class="app-layout">
+<aside class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">System</div>
+    <div class="sidebar-item"><span class="dot green"></span> app_server<span class="val" id="sb-app">online</span></div>
+    <div class="sidebar-item"><span class="dot" id="sb-ldap-dot"></span> ldap_bind<span class="val" id="sb-ldap">mock</span></div>
+    <div class="sidebar-item"><span class="dot dim"></span> auth_gate<span class="val" id="sb-auth">locked</span></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Assessment</div>
+    <div class="sidebar-item"><span class="dot dim"></span> last_scan<span class="val" id="sb-scan">none</span></div>
+    <div class="sidebar-item"><span class="dot dim"></span> findings<span class="val" id="sb-findings">0</span></div>
+    <div class="sidebar-item"><span class="dot dim"></span> overall<span class="val" id="sb-risk">--</span></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Guard</div>
+    <div class="sidebar-item"><span class="dot dim"></span> poller<span class="val" id="sb-guard">idle</span></div>
+    <div class="sidebar-item"><span class="dot dim"></span> alerts_24h<span class="val" id="sb-alerts">0</span></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Network</div>
+    <div class="sidebar-item"><span class="dot blue"></span> 192.168.70.0/24</div>
+    <div class="sidebar-item"><span class="dot dim"></span> dc01<span class="val">.10</span></div>
+    <div class="sidebar-item"><span class="dot dim"></span> ws01<span class="val">.100</span></div>
+    <div class="sidebar-item"><span class="dot dim"></span> ws02<span class="val">.101</span></div>
+  </div>
+</aside>
+
+<div class="main">
+
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('assessment',this)">Assessment</button>
+  <button class="tab-btn" onclick="showTab('report',this);loadReport()">Report</button>
+  <button class="tab-btn" onclick="showTab('guard',this)">Guard</button>
+  <button class="tab-btn" onclick="showTab('analytics',this);renderCharts()">Analytics</button>
+</nav>
+
+<!-- ASSESSMENT -->
+<div class="page active" id="page-assessment">
+  <div class="controls">
+    <button class="btn primary" id="run-btn" onclick="startAssessment()">RUN_AUDIT</button>
+    <button class="btn" id="reset-btn" onclick="resetAssessment()">RESET</button>
+    <span class="badge badge-neutral" id="badge-status">IDLE</span>
+  </div>
+  <div class="grid g3 mb-1">
+    <div class="metric-card"><div class="metric-label">findings</div><div class="metric-val crit" id="m-findings">0</div></div>
+    <div class="metric-card"><div class="metric-label">overall_risk</div><div class="metric-val" id="m-risk">--</div></div>
+    <div class="metric-card"><div class="metric-label">critical</div><div class="metric-val crit" id="b-crit">0</div></div>
+  </div>
+  <div class="grid g2 mb-1">
+    <div class="card">
+      <div class="card-label">audit_progress</div>
+      <div class="audit-progress" id="audit-progress"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">stdout</div>
+      <div class="terminal" id="terminal"><span class="t-gray">$ supernova audit --all</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">findings_discovered</div>
+    <div class="finding-list" id="finding-list"><div class="empty">NO FINDINGS</div></div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div class="page" id="page-report">
+  <div id="report-content"><div class="empty">RUN AN ASSESSMENT FIRST</div></div>
+</div>
+
+<!-- GUARD -->
+<div class="page" id="page-guard">
+  <div class="guard-status">
+    <div class="guard-dot on"></div>
+    <div><div class="guard-label">REAL-TIME GUARD</div><div class="guard-sub">Monitoring critical AD state changes</div></div>
+    <div class="threat-badge threat-low" id="threat-level">THREAT_LOW</div>
+  </div>
+  <div class="grid g3 mb-1">
+    <div class="metric-card"><div class="metric-label">events_analysed</div><div class="metric-val blue" id="g-events">0</div></div>
+    <div class="metric-card"><div class="metric-label">alerts</div><div class="metric-val crit" id="g-alerts">0</div></div>
+    <div class="metric-card"><div class="metric-label">uptime</div><div class="metric-val" id="g-uptime">00:00:00</div></div>
+  </div>
+  <div class="card">
+    <div class="card-label">alert_feed</div>
+    <div class="alert-feed" id="alert-feed"><div class="empty">MONITORING</div></div>
+  </div>
+</div>
+
+<!-- ANALYTICS (Chart.js) -->
+<div class="page" id="page-analytics">
+  <div class="grid g2 mb-1">
+    <div class="card">
+      <div class="card-label">severity_distribution</div>
+      <div style="height:260px"><canvas id="chart-severity"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-label">findings_by_category</div>
+      <div style="height:260px"><canvas id="chart-category"></canvas></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
