@@ -242,3 +242,71 @@ showTab("assessment", document.querySelector(".tab-btn"));
 setInterval(refreshGuard, 5000);
 setInterval(updateHardwareBar, 10000);
 setInterval(updateSidebar, 3000);
+
+/* ── Charts (Analytics tab) ── */
+let severityChart = null, categoryChart = null;
+
+async function renderCharts() {
+  try {
+    const r = await fetch(API + "/assessment/findings");
+    const fd = await r.json();
+    if (!fd.count) return;
+
+    const sevCounts = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+    const catCounts = {};
+    fd.findings.forEach(f => {
+      sevCounts[f.severity] = (sevCounts[f.severity] || 0) + 1;
+      catCounts[f.category] = (catCounts[f.category] || 0) + 1;
+    });
+
+    const ctx1 = document.getElementById("chart-severity");
+    if (ctx1) {
+      if (severityChart) severityChart.destroy();
+      severityChart = new Chart(ctx1, {
+        type: "doughnut",
+        data: {
+          labels: ["Critical", "High", "Medium", "Low", "Info"],
+          datasets: [{
+            data: [sevCounts.critical, sevCounts.high, sevCounts.medium, sevCounts.low, sevCounts.info],
+            backgroundColor: ["#D1533A", "#E8962E", "#4386EB", "#484F58", "#1C2128"],
+            borderColor: "#131720",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom", labels: { color: "#8B949E", font: { family: "'JetBrains Mono', monospace", size: 10 }, padding: 12 } } }
+        }
+      });
+    }
+
+    const ctx2 = document.getElementById("chart-category");
+    if (ctx2) {
+      if (categoryChart) categoryChart.destroy();
+      const cats = Object.keys(catCounts);
+      categoryChart = new Chart(ctx2, {
+        type: "bar",
+        data: {
+          labels: cats,
+          datasets: [{
+            label: "findings",
+            data: cats.map(c => catCounts[c]),
+            backgroundColor: "#4386EB",
+            borderColor: "#131720",
+            borderWidth: 1,
+            borderRadius: 0
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: "#1C2128" }, ticks: { color: "#484F58", font: { family: "'JetBrains Mono', monospace", size: 10 } } },
+            y: { grid: { display: false }, ticks: { color: "#8B949E", font: { family: "'JetBrains Mono', monospace", size: 10 } } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  } catch (e) {}
+}
