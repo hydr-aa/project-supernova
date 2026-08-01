@@ -313,6 +313,22 @@ body{
 }
 .empty{font-size:11px;color:var(--text-dim);text-align:center;padding:32px;text-transform:uppercase;letter-spacing:1px}
 
+/* ── Report Findings ── */
+.report-finding{
+  background:var(--bg-panel);border:1px solid var(--fg-border);
+  padding:20px;margin-bottom:16px;
+}
+.report-finding .rf-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:10px;
+}
+.report-finding .rf-title{
+  font-weight:600;color:var(--text-primary);font-size:14px;line-height:1.3;
+}
+.report-finding .rf-desc{
+  font-family:var(--font-body);font-size:13px;color:var(--text-secondary);
+  line-height:1.7;margin-bottom:12px;
+}
+
 /* ── Description text ── */
 .desc-text{font-family:var(--font-body);font-size:12px;color:var(--text-secondary);line-height:1.6}
 

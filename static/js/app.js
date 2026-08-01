@@ -213,15 +213,15 @@ async function loadReport() {
       document.getElementById("report-content").innerHTML = '<div class="empty">No findings. Run an assessment first.</div>';
       return;
     }
-    let html = `<div class="report-header"><div class="report-title">AD Security Assessment Report</div><div class="report-meta">Total Findings: <span>${fd.count}</span></div></div>`;
+    let html = `<div class="report-header"><div class="report-title">AD Security Assessment Report</div><div class="report-meta">Total Findings: ${fd.count}</div></div>`;
     fd.findings.forEach(f => {
       const sev = f.severity === "critical" ? "critical" : f.severity === "high" ? "high" : f.severity === "medium" ? "medium" : "low";
-      html += `<div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--rounded-sm);padding:var(--spacing-md);margin-bottom:var(--spacing-sm)">
-        <div style="display:flex;align-items:center;gap:var(--spacing-sm);margin-bottom:var(--spacing-xs)">
+      html += `<div class="report-finding">
+        <div class="rf-header">
           <span class="sev-badge ${sev}">${f.severity.toUpperCase()}</span>
-          <span style="font-weight:600;color:var(--ink);font-size:14px">${f.title}</span>
+          <span class="rf-title">${f.title}</span>
         </div>
-        <div style="font-size:13px;color:var(--body);line-height:1.6;margin-bottom:var(--spacing-sm)">${f.description.slice(0, 300)}</div>
+        <div class="rf-desc">${f.description}</div>
         ${f.remediation_ps ? `<div class="rem-cmd">${f.remediation_ps}</div>` : ""}
       </div>`;
     });

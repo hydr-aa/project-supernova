@@ -245,3 +245,18 @@ body{
 .empty{font-size:13px;color:var(--mute);text-align:center;padding:var(--spacing-2xl)}
 .flex-between{display:flex;justify-content:space-between;align-items:center}
 .pointer-events-none{pointer-events:none}
+
+/* ── Report Findings ── */
+.report-finding{
+  background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:var(--rounded-sm);padding:20px;margin-bottom:14px;
+}
+.report-finding .rf-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:10px;
+}
+.report-finding .rf-title{
+  font-weight:600;color:var(--ink);font-size:14px;line-height:1.3;
+}
+.report-finding .rf-desc{
+  font-size:13px;color:var(--body);line-height:1.7;margin-bottom:12px;
+}
